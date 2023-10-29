@@ -1,0 +1,234 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+struct Student {
+    int studentNumber;
+    char name[50];
+    int age;
+};
+
+struct Node {
+    struct Student data;
+    struct Node* next;
+};
+
+void addStudent(struct Node** head, struct Student student) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->data = student;
+    newNode->next = *head;
+    *head = newNode;
+}
+
+void displayStudents(struct Node* head) {
+    int count = 0;
+    struct Node* current = head;
+    while (current != NULL) {
+        count++;
+        printf("%d- %s %d %d\n", current->data.studentNumber, current->data.name, current->data.age, current->data.studentNumber + 200);
+        current = current->next;
+    }
+    printf("Total students: %d\n", count);
+}
+
+struct Node* searchStudentByName(struct Node* head, const char* name) {
+    struct Node* result = NULL;
+    struct Node* current = head;
+    
+    while (current != NULL) {
+        if (strcmp(current->data.name, name) == 0) { //if we find a match we add it to the list
+            struct Student student = current->data;
+            addStudent(&result, student);
+        }
+        current = current->next;
+    }
+    
+    return result;
+}
+
+void deleteStudentByName(struct Node** head, const char* name) {
+    struct Node* current = *head;
+    struct Node* prev = NULL;
+
+    while (current != NULL) {
+        if (strcmp(current->data.name, name) == 0) {
+            if (prev == NULL) {
+                *head = current->next;
+            } else {
+                prev->next = current->next;
+            }
+            free(current);
+            return;
+        }
+        prev = current;
+        current = current->next;
+    }
+}
+
+void printLongestName(struct Node* head) {
+    char longestName[50];
+    int maxLength = 0;
+    
+    struct Node* current = head;
+    while (current != NULL) {
+        if (strlen(current->data.name) > maxLength) { //longest name changes each time we find a longer one
+            maxLength = strlen(current->data.name);
+            strcpy(longestName, current->data.name);
+        }
+        current = current->next;
+    }
+    
+    printf("The longest name in the list: %s\n", longestName);
+    printf("Length: %d\n", maxLength);
+}
+
+void generateRandomNumbers(int numbers[], int n) {
+    srand(time(NULL));
+    for (int i = 0; i < n; i++) {
+        numbers[i] = rand() % 1000;
+    }
+}
+
+void bubbleSort(int numbers[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (numbers[j] < numbers[j + 1]) {
+                int temp = numbers[j];
+                numbers[j] = numbers[j + 1];
+                numbers[j + 1] = temp;
+            }
+        }
+    }
+}
+
+int main() {
+    int numbers[200];
+    int num, numAmount = 0, action;
+    struct Node* studentList = NULL;
+    int studentNumber = 1;
+
+  
+        printf("\n Hi! Welcome to list operations practice,\n \n");
+        printf(" What action would you like to take with your list? \nPlease enter the number at the beginning of your action choice to choose...");
+        printf("\n----------------------------------------------------------------------\n\n");
+        
+  while (1) {
+        printf(" 1) Enter a number to the list (adds odd numbers at the beginning and even numbers to the end) \n");
+        printf(" 2) Add random 100 numbers and print them (they will be sorted, smallest to highest)\n");
+        printf("\n 3) Add student to the student list\n");
+        printf(" 4) Display students in the student list\n");
+        printf(" 5) Search a student in the student list by student name\n");
+        printf(" 6) Delete a student in the student list by student name\n");
+        printf(" 7) Print the student with the longest name\n");
+        printf("\n 8) Exit the program\n\n");
+
+        printf(" Your action choice: ");
+        scanf("%d", &action);
+
+        switch (action) {
+            case 1:
+                printf("Enter a number to add in the list, enter -1 to stop\n");
+
+                while (1) {
+                    printf("number: ");
+                    scanf("%d", &num);
+
+                    if (num == -1) {
+                        break;
+                    }
+
+                    if (num % 2 == 1) {
+                        for (int i = numAmount; i > 0; i--) {
+                            numbers[i] = numbers[i - 1];
+                        }
+                        numbers[0] = num;
+                        numAmount++;
+                    } else {
+                        numbers[numAmount] = num;
+                        numAmount++;
+                    }
+                }
+                
+                printf("\n\n\n");
+                break;
+
+            case 2: {
+                generateRandomNumbers(numbers, 100);
+                bubbleSort(numbers, 100);
+
+                printf("Sorted list:\n");
+                for (int i = 0; i < 100; i++) {
+                    printf("%d ", numbers[i]);
+                }
+                
+                printf("\n\n\n");
+                break;
+            }
+
+            case 3: {
+                struct Student student;
+                printf("Enter student name: ");
+                scanf("%s", student.name);
+                printf("Enter student age: ");
+                scanf("%d", &student.age);
+                student.studentNumber = studentNumber++;
+                addStudent(&studentList, student);
+                
+                printf("\n\n\n");
+                break;
+            }
+
+            case 4: {
+                displayStudents(studentList);
+                
+                printf("\n\n\n");
+                break;
+            }
+
+            case 5: {
+                char searchName[50];
+                printf("Enter the student name to search: ");
+                scanf("%s", searchName);
+                struct Node* searchResult = searchStudentByName(studentList, searchName);
+
+                if (searchResult != NULL) {
+                    displayStudents(searchResult);
+                } else {
+                    printf("There are no students in the student list under the name of '%s'.\n", searchName);
+                }
+                
+                
+                printf("\n\n\n");
+                break;
+            }
+
+            case 6: {
+                char deleteName[50];
+                printf("Enter the student name to delete from the student list: ");
+                scanf("%s", deleteName);
+                deleteStudentByName(&studentList, deleteName);
+                
+                printf("\n\n\n");
+                break;
+            }
+
+            case 7: {
+                printLongestName(studentList);
+                
+                printf("\n\n\n");
+                break;
+            }
+
+            case 8:
+                printf("\n\nExiting the program. Goodbye! Have a nice day!\n");
+                exit(0);
+
+            default:
+                printf("Invalid action choice\n");
+                break;
+        }
+    }
+
+    return 0;
+}
